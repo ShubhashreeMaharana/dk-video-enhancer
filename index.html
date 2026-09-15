@@ -3,190 +3,929 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>DK | AI 4K Video Enhancer</title>
+  <title>DK | Professional Video & Photo Enhancer</title>
   <style>
     @import url('https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Space+Grotesk:wght@400;500;600;700&display=swap');
-    :root { --ink: #e6f1eb; --muted: #8aa39a; --paper: #0d1117; --lime: #7ee787; --orange: #ff8f5c; --line: rgba(148, 163, 158, .18); --panel: #111827; }
-    * { box-sizing: border-box; }
-    body { margin: 0; min-height: 100vh; color: var(--ink); background: radial-gradient(circle at 90% 0%, rgba(126,231,135,.10), transparent 24%), linear-gradient(135deg, #0a0f13, #0d1418 35%, #101827 100%); font-family: 'Space Grotesk', sans-serif; }
-    button, input { font: inherit; }
-    .shell { width: min(1320px, calc(100% - 48px)); margin: 0 auto; padding: 28px 0 48px; }
-    .topbar { display: flex; align-items: center; justify-content: space-between; padding: 14px 16px 18px; border: 1px solid rgba(148,163,158,.18); border-radius: 14px; background: rgba(13,17,23,.56); backdrop-filter: blur(12px); }
-    .brand { display: flex; align-items: center; gap: 12px; font-weight: 700; letter-spacing: -.03em; }
-    .mark { display: grid; place-items: center; width: 38px; height: 38px; background: linear-gradient(135deg, #1b2a22, #243c2f); color: var(--lime); border-radius: 10px; font-weight: 700; box-shadow: inset 0 1px 0 rgba(255,255,255,.12), 0 10px 18px rgba(126,231,135,.12); }
-    .mode { display: flex; gap: 7px; align-items: center; color: var(--muted); font: 12px 'DM Mono', monospace; text-transform: uppercase; letter-spacing: .06em; }
-    .pulse { width: 8px; height: 8px; border-radius: 50%; background: #52b788; box-shadow: 0 0 0 5px rgba(82,183,136,.2); }
-    .intro { display: grid; grid-template-columns: 1fr 1.2fr; gap: 50px; align-items: end; padding: 42px 0 28px; }
-    .eyebrow { color: var(--orange); font: 500 12px 'DM Mono', monospace; letter-spacing: .12em; text-transform: uppercase; }
-    h1 { max-width: 600px; margin: 12px 0 15px; font-size: clamp(2.8rem, 6vw, 5.9rem); line-height: .93; letter-spacing: -.075em; }
-    .intro p { max-width: 480px; margin: 0; color: var(--muted); line-height: 1.6; }
-    .spec-strip { display: flex; justify-content: flex-end; gap: 10px; flex-wrap: wrap; }
-    .spec { border: 1px solid var(--line); background: rgba(17, 24, 39, .7); border-radius: 99px; padding: 9px 13px; color: var(--muted); font: 12px 'DM Mono', monospace; }
-    .workspace { display: grid; grid-template-columns: minmax(0, 1.95fr) minmax(300px, .8fr); gap: 18px; }
-    .preview-panel, .controls { background: linear-gradient(180deg, rgba(17,24,39,.96), rgba(11,17,23,.96)); border: 1px solid rgba(148,163,158,.18); border-radius: 22px; box-shadow: 0 18px 60px rgba(8,12,17,.38); }
-    .preview-panel { overflow: hidden; border-top: 1px solid rgba(255,255,255,.04); }
-    .preview-head { display: flex; justify-content: space-between; padding: 16px 18px; border-bottom: 1px solid var(--line); font-size: 14px; font-weight: 600; }
-    .preview-head span:last-child { color: var(--muted); font: 11px 'DM Mono', monospace; }
-    .stage { position: relative; display: grid; place-items: center; min-height: 700px; margin: 18px; overflow: hidden; background: radial-gradient(circle at top, rgba(126,231,135,.12), rgba(14,20,18,.96) 38%), #0b1015; border: 1px solid rgba(255,255,255,.04); border-radius: 16px; box-shadow: inset 0 0 30px rgba(0,0,0,.45); }
-    #video, #canvas { display: none; width: auto; height: auto; max-width: 100%; max-height: 100%; object-fit: contain; image-rendering: auto; }
-    .empty { display: grid; place-items: center; gap: 13px; padding: 30px; color: #dce5dd; text-align: center; }
-    .empty-icon { display: grid; place-items: center; width: 66px; height: 66px; border: 1px solid #60736b; border-radius: 50%; color: var(--lime); font-size: 25px; }
-    .empty strong { font-size: 18px; }
-    .empty small { color: #aab9b0; }
-    .choose { display: inline-flex; align-items: center; gap: 8px; margin-top: 6px; padding: 11px 17px; border: 0; border-radius: 7px; background: var(--lime); color: var(--ink); cursor: pointer; font-weight: 700; }
-    .timeline { display: flex; align-items: center; gap: 10px; padding: 0 19px 18px; color: var(--muted); font: 11px 'DM Mono', monospace; }
-    .track { height: 4px; flex: 1; border-radius: 5px; background: #dce3d9; }
-    .controls { padding: 21px; background: linear-gradient(180deg, rgba(13,17,23,.96), rgba(15,18,27,.98)); }
-    .controls h2 { margin: 0 0 6px; font-size: 18px; letter-spacing: -.03em; }
-    .hint { margin: 0 0 22px; color: var(--muted); font-size: 12px; line-height: 1.5; }
-    .control { padding: 17px 0; border-top: 1px solid var(--line); }
-    .control-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 9px; }
-    .mini-input { width: 100%; padding: 10px; border: 1px solid var(--line); border-radius: 7px; background: rgba(17,24,39,.8); color: var(--ink); }
-    .mini-label { display: block; margin-bottom: 6px; color: var(--muted); font: 10px 'DM Mono', monospace; text-transform: uppercase; }
-    .watermark-preview { display: flex; align-items: center; gap: 9px; margin-top: 10px; color: var(--muted); font-size: 11px; }
-    .watermark-preview input[type="file"] { max-width: 100%; font-size: 11px; }
-    .stage.has-logo { cursor: crosshair; }
-    .mode-actions { display: flex; gap: 8px; margin-bottom: 14px; }
-    .mode-actions .action { padding: 10px; font-size: 12px; }
-    .mode-actions .action.active { background: var(--ink); color: var(--lime); }
-    .photo-only { display: none; }
-    .control label { display: flex; justify-content: space-between; margin-bottom: 12px; font-size: 13px; font-weight: 600; }
-    output { color: var(--orange); font: 12px 'DM Mono', monospace; }
-    input[type="range"] { width: 100%; accent-color: var(--orange); cursor: pointer; }
-    .select { width: 100%; padding: 11px; border: 1px solid var(--line); border-radius: 7px; background: rgba(17,24,39,.8); color: var(--ink); }
-    .actions { display: grid; gap: 9px; margin-top: 8px; }
-    .action { width: 100%; padding: 13px; border: 0; border-radius: 10px; cursor: pointer; font-weight: 700; transition: transform .18s ease, box-shadow .18s ease; }
-    .action:hover:not(:disabled) { transform: translateY(-1px); }
-    .action.primary { background: linear-gradient(135deg, #2ea043, #7ee787); color: #08130c; box-shadow: 0 10px 24px rgba(126,231,135,.18); }
-    .action.secondary { background: rgba(17,24,39,.8); border: 1px solid var(--line); color: var(--muted); }
-    .mode-actions .action.active { background: linear-gradient(135deg, #1f2c35, #0f172a); color: var(--lime); border: 1px solid rgba(126,231,135,.25); }
-    .action:disabled { opacity: .45; cursor: not-allowed; }
-    .progress { display: none; height: 5px; margin-top: 15px; overflow: hidden; border-radius: 5px; background: #e2e8df; }
-    .progress i { display: block; width: 0; height: 100%; background: var(--orange); transition: width .1s linear; }
-    .status { min-height: 18px; margin: 11px 0 0; color: var(--muted); font: 11px 'DM Mono', monospace; }
-    @media (max-width: 850px) { .intro { grid-template-columns: 1fr; gap: 25px; padding-top: 40px; } .spec-strip { justify-content: flex-start; } .workspace { grid-template-columns: 1fr; } .stage { min-height: 420px; } }
-    @media (max-width: 500px) { .shell { width: min(100% - 28px, 1320px); } .topbar { align-items: flex-start; gap: 15px; } .mode { font-size: 9px; } h1 { font-size: 3.2rem; } .stage { min-height: 300px; margin: 10px; } .preview-head, .timeline { padding-left: 12px; padding-right: 12px; } }
+    
+    :root {
+      --primary: #7ee787;
+      --accent: #ff8f5c;
+      --dark-bg: #0d1117;
+      --panel-bg: #111827;
+      --border-color: rgba(148, 163, 158, 0.18);
+      --text-primary: #e6f1eb;
+      --text-muted: #8aa39a;
+      --success: #52b788;
+      --error: #ff6b6b;
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Space Grotesk', sans-serif;
+      background: linear-gradient(135deg, #0a0f13, #0d1418);
+      color: var(--text-primary);
+      min-height: 100vh;
+      overflow-x: hidden;
+    }
+
+    .container {
+      max-width: 1600px;
+      margin: 0 auto;
+      padding: 24px;
+    }
+
+    /* HEADER */
+    .header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 32px;
+      padding: 20px;
+      background: rgba(17, 24, 39, 0.8);
+      border: 1px solid var(--border-color);
+      border-radius: 16px;
+      backdrop-filter: blur(10px);
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      font-size: 24px;
+      font-weight: 700;
+    }
+
+    .brand-icon {
+      width: 44px;
+      height: 44px;
+      display: grid;
+      place-items: center;
+      background: linear-gradient(135deg, #1b2a22, #243c2f);
+      border-radius: 12px;
+      color: var(--primary);
+      font-weight: 700;
+    }
+
+    .mode-badge {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 8px 16px;
+      background: rgba(82, 183, 136, 0.1);
+      border: 1px solid rgba(82, 183, 136, 0.3);
+      border-radius: 20px;
+      font-size: 12px;
+      color: var(--success);
+      font-family: 'DM Mono', monospace;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+    }
+
+    .pulse {
+      width: 8px;
+      height: 8px;
+      background: var(--success);
+      border-radius: 50%;
+      animation: pulse 2s infinite;
+    }
+
+    @keyframes pulse {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.3; }
+    }
+
+    /* MAIN WORKSPACE */
+    .workspace {
+      display: grid;
+      grid-template-columns: 1fr 380px;
+      gap: 24px;
+      margin-bottom: 24px;
+    }
+
+    /* PREVIEW SECTION */
+    .preview-section {
+      background: linear-gradient(180deg, rgba(17, 24, 39, 0.96), rgba(11, 17, 23, 0.96));
+      border: 1px solid var(--border-color);
+      border-radius: 20px;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      box-shadow: 0 18px 60px rgba(0, 0, 0, 0.3);
+    }
+
+    .preview-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 16px 20px;
+      border-bottom: 1px solid var(--border-color);
+      background: rgba(13, 17, 23, 0.5);
+    }
+
+    .preview-title {
+      font-size: 14px;
+      font-weight: 600;
+      color: var(--text-primary);
+    }
+
+    .video-info {
+      display: flex;
+      gap: 20px;
+      font-size: 11px;
+      color: var(--text-muted);
+      font-family: 'DM Mono', monospace;
+    }
+
+    .info-item {
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+    }
+
+    .info-label {
+      text-transform: uppercase;
+      opacity: 0.7;
+      font-size: 10px;
+      letter-spacing: 0.5px;
+    }
+
+    .info-value {
+      color: var(--primary);
+      font-weight: 600;
+      font-size: 12px;
+    }
+
+    .preview-canvas {
+      flex: 1;
+      display: grid;
+      place-items: center;
+      min-height: 600px;
+      background: radial-gradient(circle at top, rgba(126, 231, 135, 0.12), rgba(14, 20, 28, 0.6));
+      padding: 24px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .media-wrapper {
+      position: relative;
+      max-width: 100%;
+      max-height: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    video, canvas {
+      width: auto;
+      height: auto;
+      max-width: 100%;
+      max-height: 100%;
+      object-fit: contain;
+      border-radius: 8px;
+      box-shadow: 0 10px 40px rgba(0, 0, 0, 0.4);
+    }
+
+    .empty-state {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 16px;
+      color: var(--text-muted);
+      text-align: center;
+      min-height: 300px;
+    }
+
+    .empty-icon {
+      width: 80px;
+      height: 80px;
+      display: grid;
+      place-items: center;
+      background: rgba(126, 231, 135, 0.1);
+      border: 2px solid var(--border-color);
+      border-radius: 50%;
+      font-size: 36px;
+    }
+
+    .empty-text h3 {
+      font-size: 18px;
+      color: var(--text-primary);
+      margin-bottom: 4px;
+    }
+
+    .empty-text p {
+      font-size: 14px;
+      opacity: 0.8;
+    }
+
+    .drop-hint {
+      padding: 12px 24px;
+      background: rgba(126, 231, 135, 0.1);
+      border: 1px solid var(--border-color);
+      border-radius: 8px;
+      font-size: 12px;
+      color: var(--primary);
+    }
+
+    .timeline {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 16px 20px;
+      border-top: 1px solid var(--border-color);
+      background: rgba(13, 17, 23, 0.3);
+      font-family: 'DM Mono', monospace;
+      font-size: 11px;
+      color: var(--text-muted);
+    }
+
+    .time-display {
+      min-width: 50px;
+    }
+
+    .progress-bar {
+      flex: 1;
+      height: 4px;
+      background: rgba(126, 231, 135, 0.2);
+      border-radius: 2px;
+      overflow: hidden;
+      cursor: pointer;
+    }
+
+    .progress-fill {
+      height: 100%;
+      background: var(--primary);
+      width: 0%;
+      border-radius: 2px;
+    }
+
+    .audio-controls {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 12px;
+      background: rgba(17, 24, 39, 0.6);
+      border-radius: 8px;
+      border: 1px solid var(--border-color);
+    }
+
+    .audio-btn {
+      width: 36px;
+      height: 36px;
+      display: grid;
+      place-items: center;
+      background: transparent;
+      border: 1px solid var(--border-color);
+      border-radius: 6px;
+      color: var(--text-muted);
+      cursor: pointer;
+      font-size: 16px;
+      transition: all 0.2s;
+    }
+
+    .audio-btn:hover {
+      background: rgba(126, 231, 135, 0.1);
+      color: var(--primary);
+      border-color: var(--primary);
+    }
+
+    .volume-slider {
+      width: 80px;
+      height: 4px;
+      -webkit-appearance: none;
+      appearance: none;
+      background: rgba(126, 231, 135, 0.2);
+      border-radius: 2px;
+      outline: none;
+      accent-color: var(--primary);
+      cursor: pointer;
+    }
+
+    /* CONTROLS PANEL */
+    .controls-panel {
+      background: linear-gradient(180deg, rgba(13, 17, 23, 0.96), rgba(15, 18, 27, 0.98));
+      border: 1px solid var(--border-color);
+      border-radius: 20px;
+      padding: 24px;
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+      height: fit-content;
+      position: sticky;
+      top: 24px;
+      box-shadow: 0 18px 60px rgba(0, 0, 0, 0.3);
+    }
+
+    .controls-title {
+      font-size: 16px;
+      font-weight: 600;
+      color: var(--text-primary);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .controls-title::before {
+      content: '';
+      width: 4px;
+      height: 18px;
+      background: var(--primary);
+      border-radius: 2px;
+    }
+
+    .mode-selector {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+    }
+
+    .mode-btn {
+      padding: 10px;
+      border: 1px solid var(--border-color);
+      background: rgba(17, 24, 39, 0.6);
+      color: var(--text-muted);
+      border-radius: 8px;
+      font-size: 12px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .mode-btn.active {
+      background: linear-gradient(135deg, var(--primary), #52b788);
+      color: #0d1117;
+      border-color: var(--primary);
+    }
+
+    .mode-btn:hover:not(.active) {
+      background: rgba(17, 24, 39, 0.8);
+      border-color: var(--primary);
+      color: var(--primary);
+    }
+
+    .control-group {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      padding: 16px;
+      background: rgba(17, 24, 39, 0.4);
+      border: 1px solid var(--border-color);
+      border-radius: 10px;
+    }
+
+    .control-group.hidden {
+      display: none;
+    }
+
+    .control-label {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--text-primary);
+    }
+
+    .control-value {
+      font-family: 'DM Mono', monospace;
+      color: var(--accent);
+      font-size: 12px;
+    }
+
+    .slider {
+      width: 100%;
+      height: 6px;
+      -webkit-appearance: none;
+      appearance: none;
+      background: rgba(126, 231, 135, 0.2);
+      border-radius: 3px;
+      outline: none;
+      accent-color: var(--primary);
+      cursor: pointer;
+    }
+
+    .slider:hover {
+      background: rgba(126, 231, 135, 0.3);
+    }
+
+    .input-field {
+      width: 100%;
+      padding: 10px 12px;
+      background: rgba(13, 17, 23, 0.8);
+      border: 1px solid var(--border-color);
+      border-radius: 8px;
+      color: var(--text-primary);
+      font-size: 13px;
+      font-family: inherit;
+      transition: all 0.2s;
+    }
+
+    .input-field:focus {
+      border-color: var(--primary);
+      background: rgba(13, 17, 23, 0.95);
+      outline: none;
+      box-shadow: 0 0 12px rgba(126, 231, 135, 0.2);
+    }
+
+    .select-field {
+      width: 100%;
+      padding: 10px 12px;
+      background: rgba(13, 17, 23, 0.8);
+      border: 1px solid var(--border-color);
+      border-radius: 8px;
+      color: var(--text-primary);
+      font-size: 13px;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .select-field:focus {
+      border-color: var(--primary);
+      outline: none;
+    }
+
+    .grid-2 {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+    }
+
+    .grid-3 {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 8px;
+    }
+
+    .file-upload {
+      position: relative;
+      overflow: hidden;
+    }
+
+    .file-upload-btn {
+      width: 100%;
+      padding: 12px;
+      background: rgba(126, 231, 135, 0.1);
+      border: 2px dashed var(--primary);
+      border-radius: 8px;
+      color: var(--primary);
+      cursor: pointer;
+      font-size: 12px;
+      font-weight: 600;
+      transition: all 0.2s;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .file-upload-btn:hover {
+      background: rgba(126, 231, 135, 0.2);
+    }
+
+    .file-upload input[type="file"] {
+      display: none;
+    }
+
+    .action-buttons {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+      margin-top: 8px;
+    }
+
+    .btn {
+      padding: 12px 16px;
+      border: none;
+      border-radius: 8px;
+      font-size: 13px;
+      font-weight: 700;
+      cursor: pointer;
+      transition: all 0.2s;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      font-family: inherit;
+    }
+
+    .btn-primary {
+      background: linear-gradient(135deg, var(--primary), #52b788);
+      color: #0d1117;
+      box-shadow: 0 8px 24px rgba(126, 231, 135, 0.25);
+    }
+
+    .btn-primary:hover:not(:disabled) {
+      transform: translateY(-2px);
+      box-shadow: 0 12px 32px rgba(126, 231, 135, 0.35);
+    }
+
+    .btn-secondary {
+      background: rgba(17, 24, 39, 0.8);
+      border: 1px solid var(--border-color);
+      color: var(--text-muted);
+    }
+
+    .btn-secondary:hover:not(:disabled) {
+      background: rgba(17, 24, 39, 0.95);
+      border-color: var(--primary);
+      color: var(--primary);
+    }
+
+    .btn:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+
+    .btn.full-width {
+      grid-column: 1 / -1;
+    }
+
+    .progress-section {
+      display: none;
+    }
+
+    .progress-section.active {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .progress-bar-container {
+      width: 100%;
+      height: 6px;
+      background: rgba(126, 231, 135, 0.1);
+      border-radius: 3px;
+      overflow: hidden;
+    }
+
+    .progress-bar-fill {
+      height: 100%;
+      background: linear-gradient(90deg, var(--primary), var(--accent));
+      width: 0%;
+      transition: width 0.3s ease;
+      border-radius: 3px;
+    }
+
+    .status-message {
+      font-size: 12px;
+      color: var(--text-muted);
+      font-family: 'DM Mono', monospace;
+      min-height: 18px;
+      line-height: 1.4;
+    }
+
+    .status-message.success {
+      color: var(--primary);
+    }
+
+    .status-message.error {
+      color: var(--error);
+    }
+
+    /* RESPONSIVE */
+    @media (max-width: 1200px) {
+      .workspace {
+        grid-template-columns: 1fr;
+      }
+
+      .controls-panel {
+        position: static;
+      }
+    }
+
+    @media (max-width: 768px) {
+      .container {
+        padding: 16px;
+      }
+
+      .header {
+        flex-direction: column;
+        gap: 16px;
+        text-align: center;
+      }
+
+      .preview-canvas {
+        min-height: 400px;
+      }
+
+      .video-info {
+        flex-direction: column;
+        gap: 8px;
+      }
+
+      .mode-selector,
+      .action-buttons {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    /* HIDDEN ELEMENTS */
+    video, canvas {
+      display: none;
+    }
+
+    video.visible, canvas.visible {
+      display: block;
+    }
   </style>
 </head>
 <body>
-  <main class="shell">
-    <header class="topbar"><div class="brand"><span class="mark">DK</span><span>DK</span></div><div class="mode"><i class="pulse"></i> Local processing mode</div></header>
-    <section class="intro"><div><div class="eyebrow">AI video restoration lab / 01</div><h1>Make every frame count.</h1><p>Turn soft, noisy footage into a cleaner 4K-ready master. Your video stays in the browser while you tune the result.</p></div><div class="spec-strip"><span class="spec">4K UPSCALE</span><span class="spec">SMART SHARPEN</span><span class="spec">NO UPLOAD</span></div></section>
-    <section class="workspace" aria-label="Video enhancement workspace">
-      <div class="preview-panel">
-        <div class="preview-head"><span>Preview monitor</span><span id="dimensions">WAITING FOR SOURCE</span></div>
-        <div class="stage"><div class="empty" id="empty"><div class="empty-icon">+</div><strong>Drop a video to begin</strong><small>MP4, WebM or MOV · processed locally</small><label class="choose">Choose video<input id="file" type="file" accept="video/*" hidden></label></div><video id="video" muted playsinline></video><canvas id="canvas"></canvas></div>
-        <div class="timeline"><span id="current">00:00</span><span class="track"></span><span id="duration">00:00</span></div>
+  <div class="container">
+    <!-- HEADER -->
+    <header class="header">
+      <div class="brand">
+        <div class="brand-icon">DK</div>
+        <div>
+          <div>DK Video & Photo Enhancer</div>
+          <div style="font-size: 12px; color: var(--text-muted); font-weight: 400;">Professional Enhancement Lab</div>
+        </div>
       </div>
-      <aside class="controls">
-        <h2>Enhancement controls</h2><p class="hint">Enhance, trim, brand and export your video in one pass.</p>
-        <div class="mode-actions"><button class="action primary active" id="videoMode" type="button">Video Editor</button><button class="action secondary" id="photoMode" type="button">Photo Restore</button></div>
-        <div class="video-only"><div class="control"><label>Trim video <output id="trimValue">00:00 → 00:00</output></label><div class="control-grid"><div><span class="mini-label">Start (sec)</span><input class="mini-input" id="trimStart" type="number" min="0" value="0" step="0.1"></div><div><span class="mini-label">End (sec)</span><input class="mini-input" id="trimEnd" type="number" min="0" value="0" step="0.1"></div></div></div>
-        <div class="control"><label for="watermarkText">Logo / watermark</label><input class="mini-input" id="watermarkText" type="text" placeholder="Your logo text (optional)"><div class="watermark-preview"><input id="logoFile" type="file" accept="image/png,image/jpeg"><span>or add a PNG/JPG</span></div></div>
-        <div class="control"><label for="logoSize">Manual logo placement <output id="logoOpacityValue">70%</output></label><p class="hint">Logo preview par click karke drag karein. Export mein same position rahegi.</p><input id="logoSize" type="range" min="5" max="35" value="18" aria-label="Logo size"><span class="mini-label">Size</span><input id="logoOpacity" type="range" min="0" max="100" value="70" aria-label="Watermark opacity"><span class="mini-label">Opacity</span></div>
-        <div class="control"><label for="scale">Output resolution <output id="scaleValue">4K · 3840px</output></label><input id="scale" type="range" min="1" max="3" step="1" value="3"></div></div>
-        <div class="control"><label for="sharpness">AI detail recovery <output id="sharpnessValue">35%</output></label><input id="sharpness" type="range" min="0" max="100" value="35"></div>
-        <div class="control"><label for="denoise">Noise reduction <output id="denoiseValue">20%</output></label><input id="denoise" type="range" min="0" max="100" value="20"></div>
-        <div class="video-only"><div class="control"><label for="format">Export preset</label><select class="select" id="format"><option value="youtube-4k">YouTube · 4K UHD (2160p)</option><option value="youtube-1080">YouTube · Full HD (1080p)</option><option value="mp4">MP4 · H.264</option><option value="mov">MOV · ProRes</option></select><p class="hint" id="formatHint">4K export, up to 3840px wide.</p></div><div class="actions"><button class="action primary" id="enhance" disabled>Enhance video</button><button class="action secondary" id="reset" disabled>Reset adjustments</button></div></div>
-        <div class="photo-only"><div class="control"><label>Photo source</label><button class="action secondary" id="photoButton" type="button">Choose photo</button><input id="photoFile" type="file" accept="image/*" hidden></div><div class="control"><label for="photoFormat">Photo export format</label><select class="select" id="photoFormat"><option value="image/png">PNG · Maximum quality</option><option value="image/jpeg">JPG · Smaller file</option></select></div><div class="actions"><button class="action primary" id="photoExport" type="button" disabled>Restore &amp; export photo</button></div></div>
-        <div class="progress" id="progress"><i></i></div><p class="status" id="status">Ready when you are.</p>
-      </aside>
-    </section>
-  </main>
+      <div class="mode-badge">
+        <div class="pulse"></div>
+        <span>Local Processing · Client-Side</span>
+      </div>
+    </header>
+
+    <!-- WORKSPACE -->
+    <div class="workspace">
+      <!-- PREVIEW SECTION -->
+      <div class="preview-section">
+        <div class="preview-header">
+          <div class="preview-title">📺 Live Preview Monitor</div>
+          <div class="video-info">
+            <div class="info-item">
+              <span class="info-label">Dimensions</span>
+              <span class="info-value" id="dimensions">--</span>
+            </div>
+            <div class="info-item">
+              <span class="info-label">Duration</span>
+              <span class="info-value" id="duration">--:--</span>
+            </div>
+            <div class="info-item">
+              <span class="info-label">Frame Rate</span>
+              <span class="info-value" id="fps">30 FPS</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="preview-canvas" id="previewCanvas">
+          <div class="empty-state">
+            <div class="empty-icon">+</div>
+            <div class="empty-text">
+              <h3>Drop Media to Begin</h3>
+              <p>MP4, WebM, MOV or Image Files</p>
+            </div>
+            <div class="drop-hint">Click or drag to upload</div>
+          </div>
+        </div>
+
+        <video id="video" muted></video>
+        <canvas id="canvas"></canvas>
+
+        <div class="timeline">
+          <span class="time-display" id="timeDisplay">00:00</span>
+          <div class="progress-bar" id="progressBar">
+            <div class="progress-fill" id="progressFill"></div>
+          </div>
+          <span class="time-display" id="duration-time">00:00</span>
+        </div>
+
+        <!-- AUDIO CONTROLS -->
+        <div class="audio-controls">
+          <button class="audio-btn" id="playBtn" title="Play/Pause">
+            <span id="playIcon">▶</span>
+          </button>
+          <button class="audio-btn" id="muteBtn" title="Mute/Unmute">
+            <span id="muteIcon">🔊</span>
+          </button>
+          <input type="range" class="volume-slider" id="volumeSlider" min="0" max="100" value="100">
+          <span style="font-size: 11px; color: var(--text-muted); min-width: 30px;" id="volumeLabel">100%</span>
+        </div>
+
+        <!-- FILE INPUT -->
+        <input type="file" id="fileInput" accept="video/*,image/*" style="display: none;">
+      </div>
+
+      <!-- CONTROLS PANEL -->
+      <div class="controls-panel">
+        <div class="controls-title">Enhancement Suite</div>
+
+        <!-- MODE SELECTOR -->
+        <div class="mode-selector">
+          <button class="mode-btn active" id="videoMode">🎬 Video</button>
+          <button class="mode-btn" id="photoMode">📷 Photo</button>
+        </div>
+
+        <!-- VIDEO CONTROLS -->
+        <div class="control-group" id="videoControls">
+          <div class="control-label">
+            <span>Trim Video</span>
+            <span class="control-value" id="trimDisplay">00:00 → 00:00</span>
+          </div>
+          <div class="grid-2">
+            <input type="number" class="input-field" id="trimStart" placeholder="Start (sec)" min="0" step="0.1">
+            <input type="number" class="input-field" id="trimEnd" placeholder="End (sec)" min="0" step="0.1">
+          </div>
+        </div>
+
+        <!-- ENHANCEMENT CONTROLS -->
+        <div class="control-group">
+          <div class="control-label">
+            <span>🔍 Sharpness</span>
+            <span class="control-value" id="sharpnessValue">35%</span>
+          </div>
+          <input type="range" class="slider" id="sharpness" min="0" max="100" value="35">
+        </div>
+
+        <div class="control-group">
+          <div class="control-label">
+            <span>🌫️ Noise Reduction</span>
+            <span class="control-value" id="denoiseValue">20%</span>
+          </div>
+          <input type="range" class="slider" id="denoise" min="0" max="100" value="20">
+        </div>
+
+        <div class="control-group">
+          <div class="control-label">
+            <span>💡 Brightness</span>
+            <span class="control-value" id="brightnessValue">0%</span>
+          </div>
+          <input type="range" class="slider" id="brightness" min="-50" max="50" value="0">
+        </div>
+
+        <div class="control-group">
+          <div class="control-label">
+            <span>🎨 Saturation</span>
+            <span class="control-value" id="saturationValue">100%</span>
+          </div>
+          <input type="range" class="slider" id="saturation" min="0" max="200" value="100">
+        </div>
+
+        <!-- OUTPUT RESOLUTION -->
+        <div class="control-group">
+          <div class="control-label">
+            <span>📐 Resolution</span>
+            <span class="control-value" id="resolutionValue">4K · 3840px</span>
+          </div>
+          <select class="select-field" id="resolution">
+            <option value="1">HD · 1280px</option>
+            <option value="2">2K · 2560px</option>
+            <option value="3" selected>4K · 3840px</option>
+          </select>
+        </div>
+
+        <!-- WATERMARK -->
+        <div class="control-group">
+          <div class="control-label">
+            <span>💧 Watermark Text</span>
+          </div>
+          <input type="text" class="input-field" id="watermarkText" placeholder="Optional text (e.g. © 2024)">
+          <div class="control-label" style="margin-top: 8px;">
+            <span>Logo Opacity</span>
+            <span class="control-value" id="opacityValue">70%</span>
+          </div>
+          <input type="range" class="slider" id="logoOpacity" min="0" max="100" value="70">
+        </div>
+
+        <!-- EXPORT FORMAT -->
+        <div class="control-group">
+          <div class="control-label">Format</div>
+          <select class="select-field" id="format">
+            <option value="webm">WebM (VP9) - Recommended</option>
+            <option value="mp4">MP4 (H.264) - Fallback</option>
+          </select>
+        </div>
+
+        <!-- PROGRESS -->
+        <div class="progress-section" id="progressSection">
+          <div class="progress-bar-container">
+            <div class="progress-bar-fill" id="progressBarFill"></div>
+          </div>
+          <div class="status-message" id="statusMessage">Ready to enhance...</div>
+        </div>
+
+        <!-- ACTION BUTTONS -->
+        <div class="action-buttons">
+          <button class="btn btn-primary" id="enhanceBtn" disabled>
+            ⚡ Enhance
+          </button>
+          <button class="btn btn-secondary" id="resetBtn">
+            ↻ Reset
+          </button>
+          <button class="btn btn-primary full-width" id="downloadBtn" disabled style="display: none;">
+            ⬇ Download
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
   <script>
-    const fileInput = document.getElementById('file');
+    // Elements
+    const fileInput = document.getElementById('fileInput');
     const video = document.getElementById('video');
     const canvas = document.getElementById('canvas');
     const context = canvas.getContext('2d');
-    const empty = document.getElementById('empty');
-    const dimensions = document.getElementById('dimensions');
-    const enhance = document.getElementById('enhance');
-    const reset = document.getElementById('reset');
-    const status = document.getElementById('status');
-    const progress = document.getElementById('progress');
-    const progressBar = progress.querySelector('i');
-    const scale = document.getElementById('scale');
+    const previewCanvas = document.getElementById('previewCanvas');
+    const playBtn = document.getElementById('playBtn');
+    const muteBtn = document.getElementById('muteBtn');
+    const volumeSlider = document.getElementById('volumeSlider');
+    const progressBar = document.getElementById('progressBar');
+    const progressFill = document.getElementById('progressFill');
+    const enhanceBtn = document.getElementById('enhanceBtn');
+    const resetBtn = document.getElementById('resetBtn');
+    const downloadBtn = document.getElementById('downloadBtn');
+    const videoMode = document.getElementById('videoMode');
+    const photoMode = document.getElementById('photoMode');
+    const progressSection = document.getElementById('progressSection');
+    const statusMessage = document.getElementById('statusMessage');
+    const progressBarFill = document.getElementById('progressBarFill');
+
+    // State
     let sourceUrl = '';
     let sourceName = 'dk-enhanced';
-    let logoImage = null;
-    let logoUrl = '';
-    let photoImage = null;
-    let photoUrl = '';
-    const logoPlacement = { x: 0.78, y: 0.8 };
-    let draggingLogo = false;
+    let isEnhancing = false;
+    let currentMode = 'video';
 
-    function setMode(mode) {
-      const isPhoto = mode === 'photo';
-      document.querySelectorAll('.video-only').forEach(element => { element.style.display = isPhoto ? 'none' : ''; });
-      document.querySelectorAll('.photo-only').forEach(element => { element.style.display = isPhoto ? '' : 'none'; });
-      document.getElementById('videoMode').classList.toggle('active', !isPhoto);
-      document.getElementById('photoMode').classList.toggle('active', isPhoto);
-      document.getElementById('photoMode').classList.toggle('secondary', !isPhoto);
-      document.getElementById('videoMode').classList.toggle('secondary', isPhoto);
-      status.textContent = isPhoto ? 'Photo Restore mode ready.' : 'Video Editor mode ready.';
-    }
+    // Format time
+    const formatTime = (seconds) => {
+      if (!isFinite(seconds)) return '00:00';
+      const mins = Math.floor(seconds / 60);
+      const secs = Math.floor(seconds % 60);
+      return `${String(mins).padStart(2, '0')}:${String(secs).padStart(2, '0')}`;
+    };
 
-    const formatTime = seconds => `${String(Math.floor(seconds / 60)).padStart(2, '0')}:${String(Math.floor(seconds % 60)).padStart(2, '0')}`;
+    // Update all control labels
     const updateControlLabels = () => {
-      const scaleLabels = { 1: 'HD · 1280px', 2: '2K · 2560px', 3: '4K · 3840px' };
-      document.getElementById('scaleValue').textContent = scaleLabels[scale.value];
       document.getElementById('sharpnessValue').textContent = `${document.getElementById('sharpness').value}%`;
       document.getElementById('denoiseValue').textContent = `${document.getElementById('denoise').value}%`;
-      document.getElementById('logoOpacityValue').textContent = `${document.getElementById('logoOpacity').value}%`;
-      if (video.duration) { document.getElementById('trimEnd').value = document.getElementById('trimEnd').value || video.duration.toFixed(1); }
+      document.getElementById('brightnessValue').textContent = `${document.getElementById('brightness').value}%`;
+      document.getElementById('saturationValue').textContent = `${document.getElementById('saturation').value}%`;
+      document.getElementById('opacityValue').textContent = `${document.getElementById('logoOpacity').value}%`;
+      
+      const resLabels = { 1: 'HD · 1280px', 2: '2K · 2560px', 3: '4K · 3840px' };
+      document.getElementById('resolutionValue').textContent = resLabels[document.getElementById('resolution').value];
+
+      if (video.duration) {
+        document.getElementById('trimEnd').value = document.getElementById('trimEnd').value || video.duration.toFixed(1);
+        document.getElementById('trimDisplay').textContent = `00:00 → ${formatTime(video.duration)}`;
+        document.getElementById('duration-time').textContent = formatTime(video.duration);
+      }
+
       if (video.readyState >= 2) drawFrame();
     };
-    document.querySelectorAll('input[type="range"]').forEach(input => input.addEventListener('input', updateControlLabels));
-    document.getElementById('videoMode').addEventListener('click', () => setMode('video'));
-    document.getElementById('photoMode').addEventListener('click', () => setMode('photo'));
-    document.getElementById('format').addEventListener('change', event => {
-      const hints = { 'youtube-4k': '4K export, up to 3840px wide.', 'youtube-1080': 'YouTube-ready Full HD export at 1920px.', mp4: 'MP4 needs FFmpeg for true H.264 encoding.', mov: 'MOV needs FFmpeg for true ProRes encoding.' };
-      document.getElementById('formatHint').textContent = hints[event.target.value];
-    });
-    fileInput.addEventListener('change', () => {
-      const file = fileInput.files[0];
-      if (!file) return;
-      if (sourceUrl) URL.revokeObjectURL(sourceUrl);
-      sourceUrl = URL.createObjectURL(file);
-      sourceName = file.name.replace(/\.[^.]+$/, '') || 'dk-enhanced';
-      video.src = sourceUrl;
-      video.muted = false;
-      video.volume = 1;
-      video.load();
-      video.addEventListener('loadedmetadata', () => {
-        empty.style.display = 'none'; video.style.display = 'block'; canvas.style.display = 'block'; enhance.disabled = false; reset.disabled = false;
-        document.getElementById('trimEnd').value = video.duration.toFixed(1); updateControlLabels();
-        dimensions.textContent = `${video.videoWidth} × ${video.videoHeight}`; document.getElementById('duration').textContent = formatTime(video.duration); document.getElementById('photoExport').disabled = true; drawFrame();
-        status.textContent = 'Source loaded. Adjust the look and enhance.';
-        video.play().catch(() => {
-          status.textContent = 'Source loaded. Audio preview is ready — click the video to play it.';
-        });
-      }, { once: true });
-    });
-    video.addEventListener('timeupdate', () => { document.getElementById('current').textContent = formatTime(video.currentTime); });
-    canvas.addEventListener('click', () => {
-      if (!video.src) return;
-      if (video.paused) {
-        video.play().catch(() => {});
-      } else {
-        video.pause();
-      }
-    });
-    function drawFrame() {
+
+    // Draw frame with enhancements
+    const drawFrame = () => {
       if (!video.videoWidth) return;
-      canvas.width = video.videoWidth; canvas.height = video.videoHeight;
+      
+      canvas.width = video.videoWidth;
+      canvas.height = video.videoHeight;
+
       const sharpness = Number(document.getElementById('sharpness').value) / 100;
       const denoise = Number(document.getElementById('denoise').value) / 100;
-      context.filter = `contrast(${1 + sharpness * .12}) saturate(${1 + sharpness * .08}) brightness(${1 - denoise * .04})`;
-      context.drawImage(video, 0, 0, canvas.width, canvas.height); context.filter = 'none'; drawWatermark(canvas.width, canvas.height); updatePreviewFit();
-    }
+      const brightness = Number(document.getElementById('brightness').value);
+      const saturation = Number(document.getElementById('saturation').value) / 100;
 
-    function updatePreviewFit() {
-      const stageRect = stage.getBoundingClientRect();
-      const maxWidth = Math.max(240, stageRect.width - 48);
-      const maxHeight = Math.max(240, stageRect.height - 48);
-      const sourceW = video.videoWidth || (photoImage && photoImage.width) || 1280;
-      const sourceH = video.videoHeight || (photoImage && photoImage.height) || 720;
+      context.filter = `
+        contrast(${1 + sharpness * 0.12}) 
+        saturate(${saturation}) 
+        brightness(${1 + brightness * 0.01})
+      `;
+      context.drawImage(video, 0, 0, canvas.width, canvas.height);
+      context.filter = 'none';
+
+      // Draw watermark
+      const watermarkText = document.getElementById('watermarkText').value.trim();
+      if (watermarkText) {
+        const opacity = Number(document.getElementById('logoOpacity').value) / 100;
+        context.globalAlpha = opacity;
+        context.font = `600 ${Math.max(18, canvas.width * 0.028)}px Space Grotesk`;
+        context.fillStyle = '#ffffff';
+        context.shadowColor = '#000000';
+        context.shadowBlur = 8;
+        const textWidth = context.measureText(watermarkText).width;
+        const x = canvas.width - textWidth - 20;
+        const y = canvas.height - 20;
+        context.fillText(watermarkText, x, y);
+        context.globalAlpha = 1;
+      }
+
+      updatePreviewFit();
+    };
+
+    // Update preview fit
+    const updatePreviewFit = () => {
+      const rect = previewCanvas.getBoundingClientRect();
+      const maxWidth = Math.max(240, rect.width - 48);
+      const maxHeight = Math.max(240, rect.height - 200);
+      
+      const sourceW = video.videoWidth || 1280;
+      const sourceH = video.videoHeight || 720;
+      
       if (!sourceW || !sourceH) return;
 
       const ratio = sourceW / sourceH;
@@ -205,56 +944,228 @@
       canvas.style.height = `${finalHeight}px`;
       video.style.width = `${finalWidth}px`;
       video.style.height = `${finalHeight}px`;
-      canvas.style.aspectRatio = `${sourceW} / ${sourceH}`;
-      video.style.aspectRatio = `${sourceW} / ${sourceH}`;
-    }
-    function drawWatermark(width, height) {
-      const text = document.getElementById('watermarkText').value.trim();
-      const opacity = Number(document.getElementById('logoOpacity').value) / 100;
-      const margin = Math.max(20, width * .025); const logoWidth = Math.min(width * Number(document.getElementById('logoSize').value) / 100, 520);
-      context.globalAlpha = opacity;
-      if (logoImage) { const logoHeight = logoWidth * logoImage.height / logoImage.width; const x = Math.max(0, Math.min(width - logoWidth, logoPlacement.x * width)); const y = Math.max(0, Math.min(height - logoHeight, logoPlacement.y * height)); context.drawImage(logoImage, x, y, logoWidth, logoHeight); }
-      if (text) { context.font = `600 ${Math.max(18, width * .028)}px Space Grotesk`; context.fillStyle = '#ffffff'; context.shadowColor = '#000000'; context.shadowBlur = 8; const textWidth = context.measureText(text).width; const x = Math.max(0, Math.min(width - textWidth, logoPlacement.x * width)); const y = Math.max(Math.max(18, width * .028), Math.min(height, logoPlacement.y * height + Math.max(18, width * .028))); context.fillText(text, x, y); context.shadowBlur = 0; }
-      context.globalAlpha = 1;
-    }
-    video.addEventListener('seeked', drawFrame);
-    document.getElementById('photoButton').addEventListener('click', () => document.getElementById('photoFile').click());
-    document.getElementById('photoFile').addEventListener('change', event => {
-      const file = event.target.files[0];
+      canvas.classList.add('visible');
+      video.classList.add('visible');
+    };
+
+    // Set mode
+    const setMode = (mode) => {
+      currentMode = mode;
+      const isPhoto = mode === 'photo';
+      
+      document.querySelectorAll('#videoControls').forEach(el => {
+        el.classList.toggle('hidden', isPhoto);
+      });
+      
+      videoMode.classList.toggle('active', !isPhoto);
+      photoMode.classList.toggle('active', isPhoto);
+      
+      statusMessage.textContent = isPhoto ? 'Photo mode ready' : 'Video mode ready';
+    };
+
+    // File input
+    fileInput.addEventListener('change', () => {
+      const file = fileInput.files[0];
       if (!file) return;
-      if (photoUrl) URL.revokeObjectURL(photoUrl);
-      photoUrl = URL.createObjectURL(file); photoImage = new Image(); photoImage.onload = () => {
-        video.style.display = 'none'; empty.style.display = 'none'; canvas.style.display = 'block'; canvas.width = photoImage.width; canvas.height = photoImage.height; drawPhoto();
-        dimensions.textContent = `${photoImage.width} × ${photoImage.height}`; document.getElementById('duration').textContent = 'PHOTO'; document.getElementById('photoExport').disabled = false; enhance.disabled = true; reset.disabled = false; status.textContent = 'Photo loaded. Restore controls and export a clean image.';
-      }; photoImage.src = photoUrl;
+
+      if (sourceUrl) URL.revokeObjectURL(sourceUrl);
+      sourceUrl = URL.createObjectURL(file);
+      sourceName = file.name.replace(/\.[^.]+$/, '') || 'dk-enhanced';
+
+      if (file.type.startsWith('video/')) {
+        video.src = sourceUrl;
+        video.muted = false;
+        video.volume = 1;
+        video.load();
+
+        video.addEventListener('loadedmetadata', () => {
+          previewCanvas.innerHTML = '';
+          document.getElementById('dimensions').textContent = `${video.videoWidth} × ${video.videoHeight}`;
+          document.getElementById('duration').textContent = formatTime(video.duration);
+          document.getElementById('duration-time').textContent = formatTime(video.duration);
+          enhanceBtn.disabled = false;
+          updateControlLabels();
+          
+          video.play().catch(() => {
+            statusMessage.textContent = 'Video loaded. Click play to preview.';
+          });
+        }, { once: true });
+      } else {
+        const img = new Image();
+        img.onload = () => {
+          document.getElementById('dimensions').textContent = `${img.width} × ${img.height}`;
+          document.getElementById('duration').textContent = 'IMAGE';
+          canvas.width = img.width;
+          canvas.height = img.height;
+          context.drawImage(img, 0, 0);
+          previewCanvas.innerHTML = '';
+          enhanceBtn.disabled = false;
+          updateControlLabels();
+        };
+        img.src = sourceUrl;
+      }
     });
-    function drawPhoto() {
-      if (!photoImage) return;
-      const sharpness = Number(document.getElementById('sharpness').value) / 100; const denoise = Number(document.getElementById('denoise').value) / 100;
-      context.filter = `contrast(${1 + sharpness * .16}) saturate(${1 + sharpness * .1}) brightness(${1 - denoise * .04})`; context.drawImage(photoImage, 0, 0, canvas.width, canvas.height); context.filter = 'none'; drawWatermark(canvas.width, canvas.height); updatePreviewFit();
-    }
-    document.getElementById('photoExport').addEventListener('click', () => { if (!photoImage) return; const mime = document.getElementById('photoFormat').value; const extension = mime === 'image/jpeg' ? 'jpg' : 'png'; drawPhoto(); const link = document.createElement('a'); link.href = canvas.toDataURL(mime, mime === 'image/jpeg' ? .92 : 1); link.download = `dk-restored-photo.${extension}`; link.click(); status.textContent = `Photo restored as ${extension.toUpperCase()}. Download started.`; });
-    document.getElementById('logoFile').addEventListener('change', event => { const file = event.target.files[0]; if (!file) return; if (logoUrl) URL.revokeObjectURL(logoUrl); logoUrl = URL.createObjectURL(file); logoImage = new Image(); logoImage.onload = () => { document.querySelector('.stage').classList.add('has-logo'); drawFrame(); }; logoImage.src = logoUrl; });
-    ['watermarkText', 'logoSize', 'logoOpacity', 'trimStart', 'trimEnd'].forEach(id => document.getElementById(id).addEventListener('input', () => { updateControlLabels(); if (id === 'trimStart' || id === 'trimEnd') document.getElementById('trimValue').textContent = `${formatTime(Number(document.getElementById('trimStart').value) || 0)} → ${formatTime(Number(document.getElementById('trimEnd').value) || 0)}`; }));
-    const stage = document.querySelector('.stage');
-    window.addEventListener('resize', updatePreviewFit);
-    const moveLogo = event => { if (!draggingLogo || (!logoImage && !document.getElementById('watermarkText').value.trim())) return; const point = event.touches ? event.touches[0] : event; const bounds = stage.getBoundingClientRect(); logoPlacement.x = Math.max(0, Math.min(.9, (point.clientX - bounds.left) / bounds.width - .08)); logoPlacement.y = Math.max(0, Math.min(.9, (point.clientY - bounds.top) / bounds.height - .08)); drawFrame(); };
-    stage.addEventListener('pointerdown', event => { if (logoImage || document.getElementById('watermarkText').value.trim()) { draggingLogo = true; stage.setPointerCapture(event.pointerId); moveLogo(event); } });
-    stage.addEventListener('pointermove', moveLogo); stage.addEventListener('pointerup', () => { draggingLogo = false; });
-    reset.addEventListener('click', () => { scale.value = 3; document.getElementById('sharpness').value = 35; document.getElementById('denoise').value = 20; document.getElementById('watermarkText').value = ''; document.getElementById('logoFile').value = ''; logoImage = null; logoPlacement.x = .78; logoPlacement.y = .8; stage.classList.remove('has-logo'); updateControlLabels(); if (photoImage) drawPhoto(); status.textContent = 'Adjustments reset.'; });
-    enhance.addEventListener('click', async () => {
-      if (!video.src || !window.MediaRecorder) { status.textContent = 'This browser cannot export video.'; return; }
-      const trimStart = Math.max(0, Number(document.getElementById('trimStart').value) || 0); const trimEnd = Math.min(video.duration, Number(document.getElementById('trimEnd').value) || video.duration);
-      if (trimEnd <= trimStart) { status.textContent = 'Trim end must be after trim start.'; return; }
-      video.pause(); video.currentTime = trimStart; await new Promise(resolve => video.addEventListener('seeked', resolve, { once: true }));
-      const preset = document.getElementById('format').value; const targetWidth = preset === 'youtube-1080' ? 1920 : 3840; const width = Math.min(video.videoWidth * Number(scale.value), targetWidth); const height = Math.round(width * video.videoHeight / video.videoWidth);
-      if (preset === 'mp4' || preset === 'mov') status.textContent = `${preset.toUpperCase()} selected. Browser fallback export is WebM; FFmpeg backend is needed for ${preset.toUpperCase()}.`;
-      canvas.width = width; canvas.height = height; const stream = canvas.captureStream(30); const recorder = new MediaRecorder(stream, { mimeType: 'video/webm;codecs=vp9' }); const chunks = [];
-      recorder.ondataavailable = event => event.data.size && chunks.push(event.data); recorder.onstop = () => { const link = document.createElement('a'); link.href = URL.createObjectURL(new Blob(chunks, { type: 'video/webm' })); link.download = `${sourceName}-${preset}.webm`; link.click(); status.textContent = 'Video enhancement complete. Download started.'; progress.style.display = 'none'; };
-      enhance.disabled = true; progress.style.display = 'block'; status.textContent = 'Enhancing frames locally...'; recorder.start();
-      const render = () => { if (video.ended || video.currentTime >= trimEnd - .02) { recorder.stop(); enhance.disabled = false; return; } drawFrameAtSize(width, height); progressBar.style.width = `${Math.min(99, (video.currentTime - trimStart) / (trimEnd - trimStart) * 100)}%`; video.currentTime += 1 / 30; requestAnimationFrame(render); }; requestAnimationFrame(render);
-      function drawFrameAtSize(targetWidth, targetHeight) { const sharpness = Number(document.getElementById('sharpness').value) / 100; context.filter = `contrast(${1 + sharpness * .12}) saturate(${1 + sharpness * .08})`; context.drawImage(video, 0, 0, targetWidth, targetHeight); context.filter = 'none'; drawWatermark(targetWidth, targetHeight); }
+
+    // Drag and drop
+    previewCanvas.addEventListener('dragover', (e) => {
+      e.preventDefault();
+      previewCanvas.style.background = 'rgba(126, 231, 135, 0.2)';
     });
+
+    previewCanvas.addEventListener('dragleave', () => {
+      previewCanvas.style.background = '';
+    });
+
+    previewCanvas.addEventListener('drop', (e) => {
+      e.preventDefault();
+      previewCanvas.style.background = '';
+      const files = e.dataTransfer.files;
+      if (files.length) {
+        fileInput.files = files;
+        fileInput.dispatchEvent(new Event('change'));
+      }
+    });
+
+    previewCanvas.addEventListener('click', () => {
+      fileInput.click();
+    });
+
+    // Play/Pause
+    playBtn.addEventListener('click', () => {
+      if (video.paused) {
+        video.play();
+        document.getElementById('playIcon').textContent = '⏸';
+      } else {
+        video.pause();
+        document.getElementById('playIcon').textContent = '▶';
+      }
+    });
+
+    // Mute
+    muteBtn.addEventListener('click', () => {
+      video.muted = !video.muted;
+      document.getElementById('muteIcon').textContent = video.muted ? '🔇' : '🔊';
+    });
+
+    // Volume
+    volumeSlider.addEventListener('input', (e) => {
+      video.volume = e.target.value / 100;
+      document.getElementById('volumeLabel').textContent = e.target.value + '%';
+    });
+
+    // Timeline
+    video.addEventListener('timeupdate', () => {
+      document.getElementById('timeDisplay').textContent = formatTime(video.currentTime);
+      const percent = (video.currentTime / video.duration) * 100;
+      document.getElementById('progressFill').style.width = percent + '%';
+    });
+
+    progressBar.addEventListener('click', (e) => {
+      const rect = progressBar.getBoundingClientRect();
+      const percent = (e.clientX - rect.left) / rect.width;
+      video.currentTime = percent * video.duration;
+    });
+
+    // Controls
+    document.querySelectorAll('input[type="range"]').forEach(input => {
+      input.addEventListener('input', updateControlLabels);
+    });
+
+    videoMode.addEventListener('click', () => setMode('video'));
+    photoMode.addEventListener('click', () => setMode('photo'));
+
+    resetBtn.addEventListener('click', () => {
+      document.getElementById('sharpness').value = 35;
+      document.getElementById('denoise').value = 20;
+      document.getElementById('brightness').value = 0;
+      document.getElementById('saturation').value = 100;
+      document.getElementById('resolution').value = 3;
+      document.getElementById('watermarkText').value = '';
+      document.getElementById('logoOpacity').value = 70;
+      updateControlLabels();
+    });
+
+    // Enhance/Export
+    enhanceBtn.addEventListener('click', async () => {
+      if (!video.src || !window.MediaRecorder) {
+        statusMessage.textContent = 'Browser doesn\'t support export.';
+        statusMessage.classList.add('error');
+        return;
+      }
+
+      isEnhancing = true;
+      enhanceBtn.disabled = true;
+      progressSection.classList.add('active');
+      statusMessage.classList.remove('success', 'error');
+      statusMessage.textContent = 'Encoding your enhanced media...';
+
+      try {
+        const trimStart = Math.max(0, Number(document.getElementById('trimStart').value) || 0);
+        const trimEnd = Math.min(video.duration, Number(document.getElementById('trimEnd').value) || video.duration);
+
+        if (trimEnd <= trimStart) {
+          throw new Error('Trim end must be after start.');
+        }
+
+        const resLabels = { 1: 1920, 2: 2560, 3: 3840 };
+        const targetWidth = resLabels[document.getElementById('resolution').value];
+        const width = Math.min(video.videoWidth * 1, targetWidth);
+        const height = (width / video.videoWidth) * video.videoHeight;
+
+        canvas.width = width;
+        canvas.height = height;
+
+        const stream = canvas.captureStream(30);
+        const recorder = new MediaRecorder(stream, { mimeType: 'video/webm;codecs=vp9' });
+        const chunks = [];
+
+        recorder.ondataavailable = (e) => {
+          if (e.data.size) chunks.push(e.data);
+        };
+
+        recorder.onstop = () => {
+          const blob = new Blob(chunks, { type: 'video/webm' });
+          const url = URL.createObjectURL(blob);
+          const link = document.createElement('a');
+          link.href = url;
+          link.download = `${sourceName}-enhanced.webm`;
+          link.click();
+          URL.revokeObjectURL(url);
+
+          isEnhancing = false;
+          enhanceBtn.disabled = false;
+          progressSection.classList.remove('active');
+          statusMessage.classList.add('success');
+          statusMessage.textContent = '✓ Export complete! File downloaded.';
+        };
+
+        video.currentTime = trimStart;
+        video.addEventListener('seeked', () => {
+          recorder.start();
+
+          const render = () => {
+            if (video.ended || video.currentTime >= trimEnd - 0.02) {
+              recorder.stop();
+              return;
+            }
+            drawFrame();
+            const percent = ((video.currentTime - trimStart) / (trimEnd - trimStart)) * 100;
+            progressBarFill.style.width = percent + '%';
+            video.play();
+            requestAnimationFrame(render);
+          };
+
+          render();
+        }, { once: true });
+      } catch (error) {
+        statusMessage.classList.add('error');
+        statusMessage.textContent = '✗ Error: ' + error.message;
+        isEnhancing = false;
+        enhanceBtn.disabled = false;
+      }
+    });
+
+    // Initialize
     updateControlLabels();
   </script>
 </body>
