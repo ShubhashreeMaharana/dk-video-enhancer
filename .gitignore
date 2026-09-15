@@ -1,0 +1,6 @@
+node_modules/
+dump.rdb
+uploads/*
+.env
+.env.*
+!.gitkeep

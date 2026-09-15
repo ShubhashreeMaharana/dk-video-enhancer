@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Maa Kantabausuni Records - Artist &amp; Distribution Portal</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', Arial, sans-serif; }
+    body { min-height: 100vh; background: #0c0d10; color: #fff; padding: 40px 20px; }
+    .container { max-width: 700px; margin: 0 auto; background: #16181e; border: 1px solid #2a2e3d; border-radius: 12px; padding: 30px; box-shadow: 0 8px 24px rgba(0,0,0,0.5); }
+    .brand-header { text-align: center; margin-bottom: 25px; padding-bottom: 20px; border-bottom: 1px solid #2a2e3d; }
+    .logo-box { width: 60px; height: 60px; display: block; border-radius: 12px; margin: 0 auto 15px; box-shadow: 0 4px 15px rgba(230, 57, 70, 0.4); }
+    .brand-header h1 { font-size: 1.8rem; margin-bottom: 5px; }
+    .brand-header p { font-size: 0.9rem; color: #888; }
+    .notice-box { background: #11141c; border: 1px solid #3a3f52; padding: 15px; border-radius: 8px; margin-bottom: 25px; font-size: 0.85rem; color: #bbb; }
+    .notice-box strong { color: #2ec4b6; }
+    .section-title { font-size: 1.1rem; color: #e63946; margin: 25px 0 15px; padding-bottom: 5px; border-bottom: 1px dashed #2a2e3d; text-transform: uppercase; letter-spacing: 0.5px; }
+    .form-group { margin-bottom: 18px; }
+    .form-group label { display: block; margin-bottom: 8px; font-size: 0.9rem; color: #ccc; font-weight: 600; }
+    .form-group input, .form-group textarea, .form-group select { width: 100%; padding: 12px; background: #0f1015; border: 1px solid #2a2e3d; border-radius: 6px; color: #fff; font-size: 0.95rem; }
+    .form-group input:focus, .form-group textarea:focus, .form-group select:focus { border-color: #e63946; outline: none; }
+    .form-group small { display: block; color: #777; font-size: 0.8rem; margin-top: 5px; }
+    .copyright-box { background: #0f1015; border: 1px dashed #3a3f52; padding: 15px; border-radius: 6px; margin-bottom: 25px; }
+    .copyright-box h4 { font-size: 0.85rem; color: #e63946; margin-bottom: 8px; text-transform: uppercase; }
+    .copyright-box p { font-size: 0.85rem; color: #aaa; margin: 3px 0; }
+    .copyright-box strong { color: #ddd; }
+    .btn-submit { width: 100%; background: linear-gradient(135deg, #e63946, #7209b7); color: #fff; border: none; padding: 14px; border-radius: 6px; font-size: 1rem; font-weight: bold; cursor: pointer; transition: opacity 0.3s; margin-top: 10px; }
+    .btn-submit:hover { opacity: 0.9; }
+    @media (max-width: 600px) { body { padding: 20px 12px; } .container { padding: 22px 18px; } .brand-header h1 { font-size: 1.45rem; } }
+  </style>
+</head>
+<body>
+  <main class="container">
+    <header class="brand-header">
+      <img class="logo-box" src="/logo.svg" alt="Maa Kantabausuni Records logo">
+      <h1>Maa Kantabausuni Records</h1>
+      <p>Artist Release, Social Tagging &amp; Rights Management Portal</p>
+    </header>
+
+    <div class="notice-box">
+      <strong>Account Tracking Notice:</strong> Aapka registered Email ID hi aapki Client Identity hai. Aapke dwara submit kiye gaye saare gaano ka status (Uploaded, Approved, Ya Rejected) aur Content ID status aapke email par communicate kiya jata hai.
+    </div>
+
+    <form action="https://formspree.io/f/myeydrjr" method="POST">
+      <div class="form-group">
+        <label for="request-type">Submission Type / Service Request *</label>
+        <select id="request-type" name="request_type" required>
+          <option value="NEW_TRACK_SUBMISSION">New Song Release Submission</option>
+          <option value="INSTAGRAM_LINK_REQUEST">Instagram Audio Tag/Link Request</option>
+          <option value="UGC_CLAIM_REMOVAL">YouTube / UGC Content ID Claim Removal</option>
+        </select>
+      </div>
+
+      <h2 class="section-title">1. Client &amp; Track Information</h2>
+      <div class="form-group">
+        <label for="client-email">Client / Label Contact Email *</label>
+        <input id="client-email" type="email" name="client_email" placeholder="aapka.email@example.com" required>
+        <small>Isi Email se aapke uploads aur status track honge.</small>
+      </div>
+      <div class="form-group">
+        <label for="song-title">Song Title / Track Name *</label>
+        <input id="song-title" type="text" name="song_title" placeholder="e.g. Sambalpuri Beats" required>
+      </div>
+      <div class="form-group">
+        <label for="primary-artist">Primary Artist Name *</label>
+        <input id="primary-artist" type="text" name="primary_artist" placeholder="e.g. Rahul Kumar" required>
+      </div>
+
+      <h2 class="section-title">2. Release Audio &amp; Poster (For New Submissions)</h2>
+      <div class="form-group">
+        <label for="artwork-link">Artwork Poster Drive Link (3000x3000px JPG/PNG)</label>
+        <input id="artwork-link" type="url" name="artwork_drive_link" placeholder="https://drive.google.com/file/d/...">
+      </div>
+      <div class="form-group">
+        <label for="audio-link">Audio Track Drive Link (WAV or FLAC)</label>
+        <input id="audio-link" type="url" name="audio_drive_link" placeholder="https://drive.google.com/file/d/...">
+      </div>
+
+      <h2 class="section-title">3. Instagram Audio Linking Request</h2>
+      <div class="form-group">
+        <label for="instagram-handle">Instagram Handle / Profile Link</label>
+        <input id="instagram-handle" type="text" name="instagram_handle" placeholder="e.g. @artist_official ya https://instagram.com/...">
+      </div>
+      <div class="form-group">
+        <label for="live-song-link">Spotify / Streaming Link of Song (If Live)</label>
+        <input id="live-song-link" type="url" name="live_song_link" placeholder="https://open.spotify.com/track/...">
+      </div>
+
+      <h2 class="section-title">4. UGC / YouTube Content ID Claim Removal</h2>
+      <div class="form-group">
+        <label for="claimed-video-url">Claimed Video URL (YouTube / Video Link) *</label>
+        <input id="claimed-video-url" type="url" name="claimed_video_url" placeholder="https://www.youtube.com/watch?v=...">
+        <small>Jis video par copyright claim aaya hai aur use hatwana hai.</small>
+      </div>
+      <div class="form-group">
+        <label for="isrc-code">ISRC Code / Release UPC (Optional)</label>
+        <input id="isrc-code" type="text" name="isrc_code" placeholder="e.g. IN-M00-26-00001">
+      </div>
+      <div class="form-group">
+        <label for="claim-details">Claim Issue Details / Notes</label>
+        <textarea id="claim-details" name="claim_details" rows="3" placeholder="Batayein ki kya issue hai (e.g. Channel Muted, False Claim, Monetization Blocked)"></textarea>
+      </div>
+
+      <div class="copyright-box">
+        <h4>Auto-Assigned Label Metadata</h4>
+        <p><strong>P-Line:</strong> ℗ 2026 Maa Kantabausuni Records</p>
+        <p><strong>C-Line:</strong> © 2026 Maa Kantabausuni Records</p>
+        <p><strong>Publisher:</strong> Maa Kantabausuni Records Pvt Ltd</p>
+      </div>
+
+      <button type="submit" class="btn-submit">Submit Request To Label</button>
+    </form>
+  </main>
+</body>
+</html>
