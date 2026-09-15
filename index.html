@@ -47,6 +47,9 @@
     .watermark-preview { display: flex; align-items: center; gap: 9px; margin-top: 10px; color: var(--muted); font-size: 11px; }
     .watermark-preview input[type="file"] { max-width: 100%; font-size: 11px; }
     .stage.has-logo { cursor: crosshair; }
+    .mode-actions { display: flex; gap: 8px; margin-bottom: 14px; }
+    .mode-actions .action { padding: 10px; font-size: 12px; }
+    .photo-tools { display: none; }
     .control label { display: flex; justify-content: space-between; margin-bottom: 12px; font-size: 13px; font-weight: 600; }
     output { color: var(--orange); font: 12px 'DM Mono', monospace; }
     input[type="range"] { width: 100%; accent-color: var(--orange); cursor: pointer; }
@@ -75,13 +78,14 @@
       </div>
       <aside class="controls">
         <h2>Enhancement controls</h2><p class="hint">Enhance, trim, brand and export your video in one pass.</p>
+        <div class="mode-actions"><button class="action secondary" id="photoButton" type="button">Restore photo</button><input id="photoFile" type="file" accept="image/*" hidden><button class="action secondary" id="photoExport" type="button" disabled>Export photo</button></div>
         <div class="control"><label>Trim video <output id="trimValue">00:00 → 00:00</output></label><div class="control-grid"><div><span class="mini-label">Start (sec)</span><input class="mini-input" id="trimStart" type="number" min="0" value="0" step="0.1"></div><div><span class="mini-label">End (sec)</span><input class="mini-input" id="trimEnd" type="number" min="0" value="0" step="0.1"></div></div></div>
         <div class="control"><label for="watermarkText">Logo / watermark</label><input class="mini-input" id="watermarkText" type="text" placeholder="Your logo text (optional)"><div class="watermark-preview"><input id="logoFile" type="file" accept="image/png,image/jpeg"><span>or add a PNG/JPG</span></div></div>
         <div class="control"><label for="logoSize">Manual logo placement <output id="logoOpacityValue">70%</output></label><p class="hint">Logo preview par click karke drag karein. Export mein same position rahegi.</p><input id="logoSize" type="range" min="5" max="35" value="18" aria-label="Logo size"><span class="mini-label">Size</span><input id="logoOpacity" type="range" min="0" max="100" value="70" aria-label="Watermark opacity"><span class="mini-label">Opacity</span>
         <div class="control"><label for="scale">Output resolution <output id="scaleValue">4K · 3840px</output></label><input id="scale" type="range" min="1" max="3" step="1" value="3"></div>
         <div class="control"><label for="sharpness">AI detail recovery <output id="sharpnessValue">35%</output></label><input id="sharpness" type="range" min="0" max="100" value="35"></div>
         <div class="control"><label for="denoise">Noise reduction <output id="denoiseValue">20%</output></label><input id="denoise" type="range" min="0" max="100" value="20"></div>
-        <div class="control"><label for="format">Export format</label><select class="select" id="format"><option value="video/webm">WebM · High quality</option><option value="video/webm;codecs=vp9">WebM · VP9</option></select></div>
+        <div class="control"><label for="format">Export preset</label><select class="select" id="format"><option value="youtube-4k">YouTube · 4K UHD (2160p)</option><option value="youtube-1080">YouTube · Full HD (1080p)</option><option value="mp4">MP4 · H.264</option><option value="mov">MOV · ProRes</option></select><p class="hint" id="formatHint">4K export, up to 3840px wide.</p></div>
         <div class="actions"><button class="action primary" id="enhance" disabled>Enhance video</button><button class="action secondary" id="reset" disabled>Reset adjustments</button></div>
         <div class="progress" id="progress"><i></i></div><p class="status" id="status">Ready when you are.</p>
       </aside>
@@ -104,6 +108,8 @@
     let sourceName = 'dk-enhanced';
     let logoImage = null;
     let logoUrl = '';
+    let photoImage = null;
+    let photoUrl = '';
     const logoPlacement = { x: 0.78, y: 0.8 };
     let draggingLogo = false;
 
@@ -118,6 +124,10 @@
       if (video.readyState >= 2) drawFrame();
     };
     document.querySelectorAll('input[type="range"]').forEach(input => input.addEventListener('input', updateControlLabels));
+    document.getElementById('format').addEventListener('change', event => {
+      const hints = { 'youtube-4k': '4K export, up to 3840px wide.', 'youtube-1080': 'YouTube-ready Full HD export at 1920px.', mp4: 'MP4 needs FFmpeg for true H.264 encoding.', mov: 'MOV needs FFmpeg for true ProRes encoding.' };
+      document.getElementById('formatHint').textContent = hints[event.target.value];
+    });
     fileInput.addEventListener('change', () => {
       const file = fileInput.files[0];
       if (!file) return;
@@ -153,21 +163,38 @@
       context.globalAlpha = 1;
     }
     video.addEventListener('seeked', drawFrame);
+    document.getElementById('photoButton').addEventListener('click', () => document.getElementById('photoFile').click());
+    document.getElementById('photoFile').addEventListener('change', event => {
+      const file = event.target.files[0];
+      if (!file) return;
+      if (photoUrl) URL.revokeObjectURL(photoUrl);
+      photoUrl = URL.createObjectURL(file); photoImage = new Image(); photoImage.onload = () => {
+        video.style.display = 'none'; empty.style.display = 'none'; canvas.style.display = 'block'; canvas.width = photoImage.width; canvas.height = photoImage.height; drawPhoto();
+        dimensions.textContent = `${photoImage.width} × ${photoImage.height}`; document.getElementById('duration').textContent = 'PHOTO'; document.getElementById('photoExport').disabled = false; enhance.disabled = true; reset.disabled = false; status.textContent = 'Photo loaded. Restore controls and export a clean image.';
+      }; photoImage.src = photoUrl;
+    });
+    function drawPhoto() {
+      if (!photoImage) return;
+      const sharpness = Number(document.getElementById('sharpness').value) / 100; const denoise = Number(document.getElementById('denoise').value) / 100;
+      context.filter = `contrast(${1 + sharpness * .16}) saturate(${1 + sharpness * .1}) brightness(${1 - denoise * .04})`; context.drawImage(photoImage, 0, 0, canvas.width, canvas.height); context.filter = 'none'; drawWatermark(canvas.width, canvas.height);
+    }
+    document.getElementById('photoExport').addEventListener('click', () => { if (!photoImage) return; drawPhoto(); const link = document.createElement('a'); link.href = canvas.toDataURL('image/png', 1); link.download = 'dk-restored-photo.png'; link.click(); status.textContent = 'Photo restored and download started.'; });
     document.getElementById('logoFile').addEventListener('change', event => { const file = event.target.files[0]; if (!file) return; if (logoUrl) URL.revokeObjectURL(logoUrl); logoUrl = URL.createObjectURL(file); logoImage = new Image(); logoImage.onload = () => { document.querySelector('.stage').classList.add('has-logo'); drawFrame(); }; logoImage.src = logoUrl; });
     ['watermarkText', 'logoSize', 'logoOpacity', 'trimStart', 'trimEnd'].forEach(id => document.getElementById(id).addEventListener('input', () => { updateControlLabels(); if (id === 'trimStart' || id === 'trimEnd') document.getElementById('trimValue').textContent = `${formatTime(Number(document.getElementById('trimStart').value) || 0)} → ${formatTime(Number(document.getElementById('trimEnd').value) || 0)}`; }));
     const stage = document.querySelector('.stage');
     const moveLogo = event => { if (!draggingLogo || (!logoImage && !document.getElementById('watermarkText').value.trim())) return; const point = event.touches ? event.touches[0] : event; const bounds = stage.getBoundingClientRect(); logoPlacement.x = Math.max(0, Math.min(.9, (point.clientX - bounds.left) / bounds.width - .08)); logoPlacement.y = Math.max(0, Math.min(.9, (point.clientY - bounds.top) / bounds.height - .08)); drawFrame(); };
     stage.addEventListener('pointerdown', event => { if (logoImage || document.getElementById('watermarkText').value.trim()) { draggingLogo = true; stage.setPointerCapture(event.pointerId); moveLogo(event); } });
     stage.addEventListener('pointermove', moveLogo); stage.addEventListener('pointerup', () => { draggingLogo = false; });
-    reset.addEventListener('click', () => { scale.value = 3; document.getElementById('sharpness').value = 35; document.getElementById('denoise').value = 20; document.getElementById('watermarkText').value = ''; document.getElementById('logoFile').value = ''; logoImage = null; logoPlacement.x = .78; logoPlacement.y = .8; stage.classList.remove('has-logo'); updateControlLabels(); status.textContent = 'Adjustments reset.'; });
+    reset.addEventListener('click', () => { scale.value = 3; document.getElementById('sharpness').value = 35; document.getElementById('denoise').value = 20; document.getElementById('watermarkText').value = ''; document.getElementById('logoFile').value = ''; logoImage = null; logoPlacement.x = .78; logoPlacement.y = .8; stage.classList.remove('has-logo'); updateControlLabels(); if (photoImage) drawPhoto(); status.textContent = 'Adjustments reset.'; });
     enhance.addEventListener('click', async () => {
       if (!video.src || !window.MediaRecorder) { status.textContent = 'This browser cannot export video.'; return; }
       const trimStart = Math.max(0, Number(document.getElementById('trimStart').value) || 0); const trimEnd = Math.min(video.duration, Number(document.getElementById('trimEnd').value) || video.duration);
       if (trimEnd <= trimStart) { status.textContent = 'Trim end must be after trim start.'; return; }
       video.pause(); video.currentTime = trimStart; await new Promise(resolve => video.addEventListener('seeked', resolve, { once: true }));
-      const multiplier = Number(scale.value); const width = Math.min(video.videoWidth * multiplier, 3840); const height = Math.round(width * video.videoHeight / video.videoWidth);
+      const preset = document.getElementById('format').value; const targetWidth = preset === 'youtube-1080' ? 1920 : 3840; const width = Math.min(video.videoWidth * Number(scale.value), targetWidth); const height = Math.round(width * video.videoHeight / video.videoWidth);
+      if (preset === 'mp4' || preset === 'mov') status.textContent = `${preset.toUpperCase()} selected. Browser fallback export is WebM; FFmpeg backend is needed for ${preset.toUpperCase()}.`;
       canvas.width = width; canvas.height = height; const stream = canvas.captureStream(30); const recorder = new MediaRecorder(stream, { mimeType: 'video/webm;codecs=vp9' }); const chunks = [];
-      recorder.ondataavailable = event => event.data.size && chunks.push(event.data); recorder.onstop = () => { const link = document.createElement('a'); link.href = URL.createObjectURL(new Blob(chunks, { type: 'video/webm' })); link.download = `${sourceName}-4k.webm`; link.click(); status.textContent = 'Enhancement complete. Download started.'; progress.style.display = 'none'; };
+      recorder.ondataavailable = event => event.data.size && chunks.push(event.data); recorder.onstop = () => { const link = document.createElement('a'); link.href = URL.createObjectURL(new Blob(chunks, { type: 'video/webm' })); link.download = `${sourceName}-${preset}.webm`; link.click(); status.textContent = 'Video enhancement complete. Download started.'; progress.style.display = 'none'; };
       enhance.disabled = true; progress.style.display = 'block'; status.textContent = 'Enhancing frames locally...'; recorder.start();
       const render = () => { if (video.ended || video.currentTime >= trimEnd - .02) { recorder.stop(); enhance.disabled = false; return; } drawFrameAtSize(width, height); progressBar.style.width = `${Math.min(99, (video.currentTime - trimStart) / (trimEnd - trimStart) * 100)}%`; video.currentTime += 1 / 30; requestAnimationFrame(render); }; requestAnimationFrame(render);
       function drawFrameAtSize(targetWidth, targetHeight) { const sharpness = Number(document.getElementById('sharpness').value) / 100; context.filter = `contrast(${1 + sharpness * .12}) saturate(${1 + sharpness * .08})`; context.drawImage(video, 0, 0, targetWidth, targetHeight); context.filter = 'none'; drawWatermark(targetWidth, targetHeight); }
